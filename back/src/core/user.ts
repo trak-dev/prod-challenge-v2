@@ -32,8 +32,15 @@ export default class User_Core {
     static async createUser(email: string, role: "STUDENT" | "PROFESSOR" | "ADMIN"): Promise<User> {
         try {
             const emailName = email.split('@')[0];
-            const firstName = emailName.split('.')[0];
-            const lastName = emailName.split('.')[1] || '';
+            const split = emailName.split('.');
+            let firstName = '';
+            let lastName = '';
+            if (split[0] && split[1]) {
+                firstName = split[0];
+                lastName = split[1];
+            } else {
+                firstName = emailName;
+            }
             const user = await User.create({ EMAIL: email, ROLE: role, FIRSTNAME: firstName, LASTNAME: lastName });
             return user;
         } catch (error) {
