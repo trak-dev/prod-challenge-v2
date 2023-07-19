@@ -1,16 +1,18 @@
 import { Table, Model, Column, AllowNull } from 'sequelize-typescript'
 
-interface  UserModel {
+interface UserModel {
     ID: number;
     EMAIL: string;
     FIRSTNAME: string;
     LASTNAME: string;
     ROLE: "STUDENT" | "PROFESSOR" | "ADMIN";
+    MAGICLINK: string;
+    VALID_UNTIL: Date;
 }
 
 @Table
 export default class User extends Model implements UserModel {
-    @AllowNull(false)
+    @AllowNull(true)
     @Column
     ID!: number;
 
@@ -18,15 +20,23 @@ export default class User extends Model implements UserModel {
     @Column
     EMAIL!: string;
 
-    @AllowNull(false)
+    @AllowNull(true)
     @Column
     FIRSTNAME!: string;
 
-    @AllowNull(false)
+    @AllowNull(true)
     @Column
     LASTNAME!: string;
 
     @AllowNull(false)
     @Column
     ROLE!: "STUDENT" | "PROFESSOR" | "ADMIN";
+
+    @AllowNull(true)
+    @Column
+    MAGICLINK!: string;
+
+    @AllowNull(true)
+    @Column
+    VALID_UNTIL!: Date;
 }
