@@ -1,7 +1,11 @@
 import fastify from 'fastify';
 import cors from '@fastify/cors'
 import { Sequelize } from 'sequelize-typescript';
-import config from './config';
+import config from './config/config';
+import User from './models/user.model';
+import Challenge from './models/challenge.model';
+import Result from './models/result.model';
+import Question from './models/question.model';
 
 const dbuser = config.database.user;
 const host = config.database.host;
@@ -18,10 +22,10 @@ const sequelize = new Sequelize({
     host: host,
     port: portdb, 
     dialect: 'postgres',
-    models: [], // Add your models here
+    models: [User, Challenge, Result, Question], // Add your models here
   });
 
-const routesWithoutAuth = [""];
+const routesWithoutAuth = ["/magicJoin"];
 
 const router = fastify({
   // logger: true
@@ -35,13 +39,14 @@ router.register(cors, {
 router.addHook('onRequest', async (request, reply) => {
     try {    
       // no auth needed for some routes
+      console.log(request.raw.url);
       if (routesWithoutAuth.includes(request.raw.url!)) return;
       // check auth
       if (request.headers.authorization) {
         // check if token is valid
         if (request.headers.authorization.split(' ')[0] && 'Bearer' === request.headers.authorization.split(' ')[0] && request.headers.authorization.split(' ')[1]) {
           request.headers.authorization = request.headers.authorization.split(' ')[1];
-            const user = await User_Core.getByToken(request.headers.authorization);
+            // const user = await User_Core.getByToken(request.headers.authorization);
         } else {
           console.error('Invalid token');
           reply.status(403).send({error: "Invalid token"});
@@ -58,8 +63,7 @@ router.addHook('onRequest', async (request, reply) => {
 
 // register the routes
 
-router.register(require('./routes/users.routes'), { prefix: '/users' });
-router.register(require('./routes/games.routes'), { prefix: '/games' });
+// router.register(require('./routes/users.routes'), { prefix: '/users' });
 
 // start the server
 router.listen({ port }, async (err, address) => {

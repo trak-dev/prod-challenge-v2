@@ -40,3 +40,11 @@ CREATE TABLE QUESTIONS (
 );
 
 CREATE INDEX idx_challenge_id_question ON QUESTIONS (CHALLENGE_ID);
+
+
+INSERT INTO USERS (EMAIL, FIRSTNAME, LASTNAME, ROLE)
+VALUES
+    ('yann@gmail.com', 'yann', 'picaud', 'ADMIN'),
+    ('user2@example.com', 'Jane', 'Smith', 'PROFESSOR'),
+    ('user3@example.com', 'Michael', 'Johnson', 'STUDENT')
+;
