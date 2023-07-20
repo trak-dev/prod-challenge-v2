@@ -41,8 +41,6 @@ declare module 'fastify' {
   }
 }
 
-
-
 const router = fastify({ 
   // logger: true,
 });

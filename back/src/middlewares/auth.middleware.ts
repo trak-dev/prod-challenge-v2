@@ -22,6 +22,8 @@ const authMiddleware = async (request: FastifyRequest, reply: FastifyReply) => {
 
           if (calledRoute.includes("/challenges")) {
             if (user.ROLE === "STUDENT") return reply.status(401).send({error: "You are not allowed to access this route"});
+          } else if (calledRoute.includes("/users")) {
+            if (user.ROLE !== "ADMIN") return reply.status(401).send({error: "You are not allowed to access this route"});
           }
       } else {
         console.error('Invalid token');

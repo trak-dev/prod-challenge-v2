@@ -119,4 +119,22 @@ export default class User_Core {
         }
     }
 
+    static async getAll(): Promise<User[]> {
+        try {
+            const users = await User.findAll({ attributes: ['EMAIL', 'FIRSTNAME', 'LASTNAME', 'ROLE'] });
+            return users;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async getById(id: number): Promise<User> {
+        try {
+            const user = await User.findByPk(id, { attributes: ['EMAIL', 'FIRSTNAME', 'LASTNAME', 'ROLE'] });
+            return user;
+        } catch (error) {
+            throw error;
+        }
+    }
+
 }

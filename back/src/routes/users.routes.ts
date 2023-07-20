@@ -29,6 +29,28 @@ async function userRoutes(router: FastifyInstance) {
             reply.status(500).send(error);
         }
     });
+
+    router.get('/', async (request, reply) => {
+        try {
+            const users = await User_Classe.getAll();
+            reply.status(200).send(users);
+        } catch (error) {
+            console.error(error);
+            reply.status(500).send(error);
+        }
+    });
+
+    router.get<{Params: { id: string }}>('/:id', async (request, reply) => {
+        try {
+            const id = parseInt(request.params.id);
+            const user = await User_Classe.getById(id);
+            reply.status(200).send(user);
+        } catch (error) {
+            console.error(error);
+            reply.status(500).send(error);
+        }
+    });
+
 }
   
 module.exports = userRoutes;

@@ -27,4 +27,22 @@ export default class User_Classe {
             throw error;
         }
     }
+
+    static async getAll(): Promise<User[]> {
+        try {
+            const users = await User_Core.getAll();
+            return users;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async getById(id: number): Promise<User> {
+        try {
+            const user = await User_Core.getById(id);
+            return user;
+        } catch (error) {
+            throw error;
+        }
+    }
 }

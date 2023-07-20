@@ -23,7 +23,6 @@ export default class Result extends Model implements ResultModel {
     @Column
     CHALLENGE_ID!: number;
 
-    @AllowNull(false)
     @Column
     GRADE!: number;
 
@@ -32,7 +31,6 @@ export default class Result extends Model implements ResultModel {
     @Column
     USER_ID!: number;
 
-    @AllowNull(false)
     @Column
     STEPS_VALIDATED!: number;
 
