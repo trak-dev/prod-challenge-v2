@@ -5,7 +5,8 @@ import { LoginResponse } from "../models/login.model";
 import moment from 'moment';
 import nodemailer from 'nodemailer';
 
-const { jwtSecret, mail } = config;
+
+const { jwtSecret, mail, frontUrl } = config;
 
 export default class User_Core {
     static async getByToken(token: string): Promise<User> {
@@ -48,8 +49,11 @@ export default class User_Core {
         }
     }
 
-    static async generateMagicLink(user: User): Promise<string> {
+    static async generateMagicLink(user: User, challengeId: number): Promise<number> {
         try {
+
+            if (challengeId === -1 && user.ROLE !== "ADMIN") throw new Error("Only admins can login without a challengeId");
+
             // generate a random string
             const magicLink = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
@@ -57,12 +61,16 @@ export default class User_Core {
             const expirationDate = moment().add(1, "hour").toDate();
             await User.update({ MAGICLINK: magicLink, VALID_UNTIL: expirationDate }, { where: { ID: user.ID } });
 
-            const mailOptions = {
+            let mailOptions = {
                 from: mail.from, // sender address 
                 to: user.EMAIL, // recipient address
                 subject: 'Your magic link',
-                text: 'hey ! here is your magic link: ' + magicLink + ' it will expire in 1 hour',
-              };
+                text: `Hello ${user.FIRSTNAME} ${user.LASTNAME},\n\nHere is your magic link: ${frontUrl}/users/magicLogin/validate/${magicLink}/${challengeId}\n\nThis link is valid for 1 hour.\n\nBest regards,\n\nThe team`,
+              }; 
+
+            if (challengeId === -1) {
+                mailOptions.text = `Hello ${user.FIRSTNAME} ${user.LASTNAME},\n\nHere is your magic link: ${frontUrl}/users/magicLogin/validate/${magicLink}/admin\n\nThis link is valid for 1 hour.\n\nBest regards,\n\nThe team`;
+            }
 
             // send the magic link by email
             const transporter = nodemailer.createTransport({
@@ -78,18 +86,20 @@ export default class User_Core {
 
             await transporter.sendMail(mailOptions);
 
-            return "email sent";
+            return user.ID;
         } catch (error) {
             console.error(error);
             throw error;
         }
     }
 
-    static async validateMagicLink(magicLink: string): Promise<LoginResponse> {
+    static async validateMagicLink(magicLink: string, challengeId: number): Promise<LoginResponse> {
         try {
             // get the user
             const user = await User.findOne({ where: { MAGICLINK: magicLink } });
             if (!user) throw new Error("User not found");
+
+            if (challengeId === -1 && user.ROLE !== "ADMIN") throw new Error("Only admins can login without a challengeId");
 
             // check if the magic link is still valid with moment
             const now = moment();

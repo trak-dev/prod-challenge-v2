@@ -7,11 +7,12 @@ interface ChallengeModel {
     CREATOR_ID: number;
     STATUS: "DRAFT" | "PUBLISHED" | "ARCHIVED";
     TOTAL: number;
+    DESCRIPTION: string;
 }
 
 @Table
 export default class Challenge extends Model implements ChallengeModel {
-    @AllowNull(false)
+    @AllowNull(true)
     @Column
     ID!: number;
 
@@ -24,14 +25,17 @@ export default class Challenge extends Model implements ChallengeModel {
     @Column
     CREATOR_ID!: number;
 
-    @AllowNull(false)
+    @AllowNull(true)
     @Column
     STATUS!: "DRAFT" | "PUBLISHED" | "ARCHIVED";
 
-    @AllowNull(false)
+    @AllowNull(true)
     @Column
     TOTAL!: number;
 
     @BelongsTo(() => User)
     CREATOR!: User;
+
+    @Column
+    DESCRIPTION!: string;
 }

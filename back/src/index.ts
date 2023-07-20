@@ -6,7 +6,10 @@ import User from './models/user.model';
 import Challenge from './models/challenge.model';
 import Result from './models/result.model';
 import Question from './models/question.model';
-import User_Core from './core/user';
+
+
+// middlewares
+import authMiddleware from './middlewares/auth.middleware';
 
 const dbuser = config.database.user;
 const host = config.database.host;
@@ -31,50 +34,33 @@ const sequelize = new Sequelize({
     }
   });
 
-const routesWithoutAuth = ["/users/magicLogin"];
+// add user to FastifyInstance
+declare module 'fastify' {
+  interface FastifyRequest  {
+      user: User | null;
+  }
+}
 
-const router = fastify({
-  // logger: true
+
+
+const router = fastify({ 
+  // logger: true,
 });
 
 router.register(cors, {
   // put options here
 });
 
+router.decorateRequest('user', null);
+
 // hook to check auth on every request except the ones in routesWithoutAuth
-router.addHook('onRequest', async (request, reply) => {
-    try {    
+router.addHook('onRequest', authMiddleware);
 
-      // no auth needed for some routes
-      if (routesWithoutAuth.includes(request.raw.url!)) return;
-      // special case for the magic login
-      if (request.raw.url!.includes("/users/magicLogin")) return;
-      // special case for the magic login validation
-      if (request.raw.url!.includes("/users/magicLogin/validate")) return;
-
-      // check auth
-      if (request.headers.authorization) {
-        // check if token is valid
-        if (request.headers.authorization.split(' ')[0] && 'Bearer' === request.headers.authorization.split(' ')[0] && request.headers.authorization.split(' ')[1]) {
-          request.headers.authorization = request.headers.authorization.split(' ')[1];
-            await User_Core.getByToken(request.headers.authorization);
-        } else {
-          console.error('Invalid token');
-          reply.status(403).send({error: "Invalid token"});
-        }
-      } else {
-    console.error("No token");
-    reply.status(401).send({ error: "Please provide a token" });
-  }
-    } catch (error) {
-      console.error(error);
-      reply.status(500).send({error});
-    }
-  });
 
 // register the routes
 
 router.register(require('./routes/users.routes'), { prefix: '/users' });
+router.register(require('./routes/challenges.routes'), { prefix: '/challenges' });
 
 // start the server
 router.listen({ port }, async (err, address) => {
